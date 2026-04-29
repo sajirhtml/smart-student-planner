@@ -103,7 +103,19 @@ export const PLANNED_ENROLLMENT = []; // { student_id, course_code, section_num 
 
 export const TASK = [];
 export const ACADEMIC_RECORDS = [];
-export const CONSULTATION = [];
+// Faculty office hours: recurring weekly slots students can book.
+export const FACULTY_SLOT = [
+  { slot_id: 1, faculty_id: 10, day: "Mon", start_time: "14:00", end_time: "14:30", room_id: 2 },
+  { slot_id: 2, faculty_id: 10, day: "Mon", start_time: "14:30", end_time: "15:00", room_id: 2 },
+  { slot_id: 3, faculty_id: 10, day: "Wed", start_time: "11:00", end_time: "11:30", room_id: 2 },
+  { slot_id: 4, faculty_id: 11, day: "Tue", start_time: "13:00", end_time: "13:30", room_id: 5 },
+  { slot_id: 5, faculty_id: 11, day: "Tue", start_time: "13:30", end_time: "14:00", room_id: 5 },
+  { slot_id: 6, faculty_id: 11, day: "Thu", start_time: "10:00", end_time: "10:30", room_id: 5 },
+  { slot_id: 7, faculty_id: 12, day: "Sun", start_time: "11:00", end_time: "11:30", room_id: 6 },
+  { slot_id: 8, faculty_id: 12, day: "Wed", start_time: "15:30", end_time: "16:00", room_id: 6 },
+];
+
+export const CONSULTATION = []; // { c_id, slot_id, student_id, topic, status, booked_at }
 export const RESOURCES = [
   { resource_id: 1, course_code: "CSE101", title: "C Programming Cheatsheet", type: "Note",     url: "https://en.cppreference.com/w/c/language", uploaded_by: 10, uploaded_at: "2026-01-12" },
   { resource_id: 2, course_code: "CSE101", title: "Lecture 1 — Hello World",  type: "Slides",   url: "https://example.com/cse101-l1.pdf",         uploaded_by: 10, uploaded_at: "2026-01-15" },
