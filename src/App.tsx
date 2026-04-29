@@ -7,6 +7,8 @@ import { UserProvider } from "@/context/UserContext";
 import Layout from "@/components/Layout.jsx";
 import Dashboard from "@/pages/Dashboard.jsx";
 import CoursePlanner from "@/pages/CoursePlanner.jsx";
+import CGPA from "@/pages/CGPA.jsx";
+import Tasks from "@/pages/Tasks.jsx";
 import Placeholder from "@/pages/Placeholder.jsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -24,8 +26,8 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/planner" element={<CoursePlanner />} />
               <Route path="/schedule"      element={<Placeholder title="Conflict-Free Schedule" />} />
-              <Route path="/cgpa"          element={<Placeholder title="CGPA & Target Predictor" />} />
-              <Route path="/tasks"         element={<Placeholder title="Academic Task Tracker" />} />
+              <Route path="/cgpa"          element={<CGPA />} />
+              <Route path="/tasks"         element={<Tasks />} />
               <Route path="/rooms"         element={<Placeholder title="Room & Lab Finder" />} />
               <Route path="/resources"     element={<Placeholder title="Course Resource Hub" />} />
               <Route path="/consultations" element={<Placeholder title="Faculty Consultations" />} />
