@@ -104,6 +104,15 @@ export const PLANNED_ENROLLMENT = []; // { student_id, course_code, section_num 
 export const TASK = [];
 export const ACADEMIC_RECORDS = [];
 export const CONSULTATION = [];
-export const RESOURCES = [];
+export const RESOURCES = [
+  { resource_id: 1, course_code: "CSE101", title: "C Programming Cheatsheet", type: "Note",     url: "https://en.cppreference.com/w/c/language", uploaded_by: 10, uploaded_at: "2026-01-12" },
+  { resource_id: 2, course_code: "CSE101", title: "Lecture 1 — Hello World",  type: "Slides",   url: "https://example.com/cse101-l1.pdf",         uploaded_by: 10, uploaded_at: "2026-01-15" },
+  { resource_id: 3, course_code: "CSE201", title: "Visualizing Data Structures", type: "Link",  url: "https://visualgo.net/en",                   uploaded_by: 10, uploaded_at: "2026-02-02" },
+  { resource_id: 4, course_code: "CSE301", title: "MIT 6.006 — Algorithms",   type: "Video",    url: "https://ocw.mit.edu/6-006",                 uploaded_by: 10, uploaded_at: "2026-02-10" },
+  { resource_id: 5, course_code: "CSE331", title: "SQL Practice — LeetCode",  type: "Link",     url: "https://leetcode.com/studyplan/top-sql-50/", uploaded_by: 10, uploaded_at: "2026-02-18" },
+  { resource_id: 6, course_code: "MAT101", title: "Khan Academy — Calculus",  type: "Video",    url: "https://www.khanacademy.org/math/calculus-1", uploaded_by: 12, uploaded_at: "2026-01-20" },
+  { resource_id: 7, course_code: "MAT201", title: "3Blue1Brown — Linear Algebra", type: "Video", url: "https://www.3blue1brown.com/topics/linear-algebra", uploaded_by: 12, uploaded_at: "2026-01-22" },
+  { resource_id: 8, course_code: "EEE101", title: "All About Circuits",       type: "Link",     url: "https://www.allaboutcircuits.com/textbook/", uploaded_by: 11, uploaded_at: "2026-01-25" },
+];
 
 export const CREDIT_CAP = 15;
