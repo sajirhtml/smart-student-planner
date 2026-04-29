@@ -9,6 +9,7 @@ import Dashboard from "@/pages/Dashboard.jsx";
 import CoursePlanner from "@/pages/CoursePlanner.jsx";
 import CGPA from "@/pages/CGPA.jsx";
 import Tasks from "@/pages/Tasks.jsx";
+import Schedule from "@/pages/Schedule.jsx";
 import Placeholder from "@/pages/Placeholder.jsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -25,7 +26,7 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/planner" element={<CoursePlanner />} />
-              <Route path="/schedule"      element={<Placeholder title="Conflict-Free Schedule" />} />
+              <Route path="/schedule"      element={<Schedule />} />
               <Route path="/cgpa"          element={<CGPA />} />
               <Route path="/tasks"         element={<Tasks />} />
               <Route path="/rooms"         element={<Placeholder title="Room & Lab Finder" />} />
