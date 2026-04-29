@@ -13,6 +13,7 @@ import Schedule from "@/pages/Schedule.jsx";
 import Rooms from "@/pages/Rooms.jsx";
 import Resources from "@/pages/Resources.jsx";
 import Consultations from "@/pages/Consultations.jsx";
+import Faculty from "@/pages/Faculty.jsx";
 import Placeholder from "@/pages/Placeholder.jsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -35,7 +36,7 @@ const App = () => (
               <Route path="/rooms"         element={<Rooms />} />
               <Route path="/resources"     element={<Resources />} />
               <Route path="/consultations" element={<Consultations />} />
-              <Route path="/faculty"       element={<Placeholder title="Faculty & Advisor Portal" />} />
+              <Route path="/faculty"       element={<Faculty />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
