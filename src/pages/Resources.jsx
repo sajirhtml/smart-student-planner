@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { getTable, updateTable } from "@/lib/db";
+import { apiAddResource, apiDeleteResource } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -72,18 +73,17 @@ export default function Resources() {
       toast.error("Course, title and URL are required.");
       return;
     }
-    updateTable("RESOURCES", (rows) => [
-      ...rows,
-      {
-        resource_id: nextId(rows),
-        course_code: draft.course_code,
-        title: draft.title.trim(),
-        type: draft.type,
-        url: draft.url.trim(),
-        uploaded_by: activeStudent?.user_id ?? 0,
-        uploaded_at: new Date().toISOString().slice(0, 10),
-      },
-    ]);
+    const newRes = {
+      resource_id: nextId(getTable("RESOURCES")),
+      course_code: draft.course_code,
+      title: draft.title.trim(),
+      type: draft.type,
+      url: draft.url.trim(),
+      uploaded_by: activeStudent?.user_id ?? 0,
+      uploaded_at: new Date().toISOString().slice(0, 10),
+    };
+    updateTable("RESOURCES", (rows) => [...rows, newRes]);
+    apiAddResource(newRes).catch((e) => console.error("API addResource:", e));
     setDraft({ course_code: "", title: "", type: "Link", url: "" });
     setOpen(false);
     toast.success("Resource added.");
@@ -91,6 +91,7 @@ export default function Resources() {
 
   const remove = (id) => {
     updateTable("RESOURCES", (rows) => rows.filter((r) => r.resource_id !== id));
+    apiDeleteResource(id).catch((e) => console.error("API delResource:", e));
     toast.success("Resource removed.");
   };
 

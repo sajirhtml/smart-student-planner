@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { getTable, updateTable } from "@/lib/db";
+import { apiAddTask, apiUpdateTask, apiDeleteTask } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -67,18 +68,17 @@ export default function Tasks() {
 
   const addTask = () => {
     if (!draft.title.trim()) { toast.error("Title is required"); return; }
-    updateTable("TASK", (rows) => [
-      ...rows,
-      {
-        t_id: nextId(rows),
-        student_id: sid,
-        title: draft.title.trim(),
-        type: draft.type,
-        course_code: draft.course_code || null,
-        status: "todo",
-        due_date: draft.due_date || null,
-      },
-    ]);
+    const newTask = {
+      t_id: nextId(getTable("TASK")),
+      student_id: sid,
+      title: draft.title.trim(),
+      type: draft.type,
+      course_code: draft.course_code || null,
+      status: "todo",
+      due_date: draft.due_date || null,
+    };
+    updateTable("TASK", (rows) => [...rows, newTask]);
+    apiAddTask(newTask).catch((e) => console.error("API addTask:", e));
     setDraft({ title: "", type: "Assignment", course_code: "", due_date: "" });
     setOpen(false);
     toast.success("Task added");
@@ -88,12 +88,14 @@ export default function Tasks() {
     updateTable("TASK", (rows) =>
       rows.map((r) => (r.t_id === t_id && r.student_id === sid ? { ...r, status } : r))
     );
+    apiUpdateTask({ t_id, status }).catch((e) => console.error("API moveTask:", e));
   };
 
   const removeTask = (t_id) => {
     updateTable("TASK", (rows) =>
       rows.filter((r) => !(r.t_id === t_id && r.student_id === sid))
     );
+    apiDeleteTask(t_id).catch((e) => console.error("API deleteTask:", e));
   };
 
   const onDragStart = (e, t_id) => {
