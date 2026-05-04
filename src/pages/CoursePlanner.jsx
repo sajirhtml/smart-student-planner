@@ -49,10 +49,9 @@ export default function CoursePlanner() {
       toast.error(`Credit cap exceeded (max ${CREDIT_CAP}).`);
       return;
     }
-    updateTable("PLANNED_ENROLLMENT", (rows) => [
-      ...rows,
-      { student_id: sid, course_code: course.course_code, section_num: null },
-    ]);
+    const row = { student_id: sid, course_code: course.course_code, section_num: null };
+    updateTable("PLANNED_ENROLLMENT", (rows) => [...rows, row]);
+    apiAddPlannedEnrollment(row).catch((e) => console.error("API addPlanned:", e));
     toast.success(`Added ${course.course_code}`);
   };
 
@@ -60,6 +59,7 @@ export default function CoursePlanner() {
     updateTable("PLANNED_ENROLLMENT", (rows) =>
       rows.filter((p) => !(p.student_id === sid && p.course_code === code))
     );
+    apiDeletePlannedEnrollment(sid, code).catch((e) => console.error("API delPlanned:", e));
   };
 
   const allCourses = getTable("COURSE");
