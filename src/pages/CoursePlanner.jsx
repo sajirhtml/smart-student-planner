@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { getTable, updateTable } from "@/lib/db";
 import { eligibleCourses, plannedCredits, CREDIT_CAP } from "@/lib/academic";
+import { apiAddPlannedEnrollment, apiDeletePlannedEnrollment } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
