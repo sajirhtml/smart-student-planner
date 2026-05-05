@@ -20,6 +20,7 @@ import CreateStudent from "@/pages/CreateStudent.jsx";
 import CreateStudentCourses from "@/pages/CreateStudentCourses.jsx";
 import EditStudent from "@/pages/EditStudent.jsx";
 import ManageCourses from "@/pages/ManageCourses.jsx";
+import CreateFaculty from "@/pages/CreateFaculty.jsx";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/faculty"       element={<Faculty />} />
               <Route path="/students/new" element={<CreateStudent />} />
               <Route path="/students/new/courses" element={<CreateStudentCourses />} />
+              <Route path="/faculty/new" element={<CreateFaculty />} />
               <Route path="/students/:userId/edit" element={<EditStudent />} />
               <Route path="/students/:userId/courses" element={<CreateStudentCourses />} />
               <Route path="/courses" element={<ManageCourses />} />

@@ -159,6 +159,10 @@ export async function apiAddEnrollment(row) {
   return postJSON("enrollments.php", row);
 }
 
+export async function apiAddFaculty(row) {
+  return postJSON("create_faculty.php", row);
+}
+
 export async function apiUpdateUser(user) {
   return putJSON("users.php", user);
 }
