@@ -87,7 +87,7 @@ export default function CreateStudent() {
 
             <div className="flex items-center gap-2">
               <Button type="submit" disabled={loading}>{loading ? "Creating…" : "Create Student"}</Button>
-              <Button variant="ghost" onClick={() => navigate(-1)}>Cancel</Button>
+              <Button type="button" variant="ghost" onClick={() => navigate(-1)}>Cancel</Button>
             </div>
           </form>
         </CardContent>

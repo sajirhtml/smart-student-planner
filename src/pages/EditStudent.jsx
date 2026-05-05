@@ -66,7 +66,7 @@ export default function EditStudent() {
             {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex items-center gap-2">
               <Button type="submit" disabled={loading}>{loading ? 'Saving…' : 'Save'}</Button>
-              <Button variant="ghost" onClick={() => nav(-1)}>Cancel</Button>
+              <Button type="button" variant="ghost" onClick={() => nav(-1)}>Cancel</Button>
             </div>
           </form>
         </CardContent>

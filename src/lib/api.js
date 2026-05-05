@@ -13,8 +13,18 @@ async function postJSON(endpoint, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`API POST ${endpoint}: ${res.status}`);
-  return res.json();
+  const text = await res.text();
+  let payload = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    payload = null;
+  }
+  if (!res.ok) {
+    const message = payload?.error || payload?.message || text || `HTTP ${res.status}`;
+    throw new Error(`API POST ${endpoint}: ${message}`);
+  }
+  return payload;
 }
 
 async function putJSON(endpoint, body) {
@@ -23,8 +33,18 @@ async function putJSON(endpoint, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`API PUT ${endpoint}: ${res.status}`);
-  return res.json();
+  const text = await res.text();
+  let payload = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    payload = null;
+  }
+  if (!res.ok) {
+    const message = payload?.error || payload?.message || text || `HTTP ${res.status}`;
+    throw new Error(`API PUT ${endpoint}: ${message}`);
+  }
+  return payload;
 }
 
 async function deleteJSON(endpoint, body) {
@@ -33,8 +53,18 @@ async function deleteJSON(endpoint, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`API DELETE ${endpoint}: ${res.status}`);
-  return res.json();
+  const text = await res.text();
+  let payload = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    payload = null;
+  }
+  if (!res.ok) {
+    const message = payload?.error || payload?.message || text || `HTTP ${res.status}`;
+    throw new Error(`API DELETE ${endpoint}: ${message}`);
+  }
+  return payload;
 }
 
 // ---------- Table-specific fetchers ----------

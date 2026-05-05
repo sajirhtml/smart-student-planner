@@ -44,9 +44,13 @@ export default function Layout() {
               end={to === "/"}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 text-sm rounded-sm transition-colors ${
-                  isActive
-                    ? "bg-foreground text-background"
-                    : "text-foreground/75 hover:bg-secondary hover:text-foreground"
+                  to === "/students/new"
+                    ? isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-primary/10 text-primary hover:bg-primary/15"
+                    : isActive
+                      ? "bg-foreground text-background"
+                      : "text-foreground/75 hover:bg-secondary hover:text-foreground"
                 }`
               }
             >

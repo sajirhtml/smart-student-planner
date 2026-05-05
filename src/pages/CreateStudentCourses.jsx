@@ -112,7 +112,7 @@ export default function CreateStudentCourses() {
 
         <div className="flex items-center gap-2">
           <Button type="submit" disabled={loading}>{loading ? "Saving…" : "Save Completed Courses"}</Button>
-          <Button variant="ghost" onClick={() => nav(-1)}>Back</Button>
+          <Button type="button" variant="ghost" onClick={() => nav(-1)}>Back</Button>
         </div>
       </form>
     </div>
