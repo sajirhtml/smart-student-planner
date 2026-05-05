@@ -51,7 +51,23 @@ const TABLE_ENDPOINTS = {
   ENROLLMENT:         { endpoint: "enrollments.php",        transform: (rows) => rows.map(r => ({ ...r, student_id: Number(r.student_id), grade_point: parseFloat(r.grade_point) })) },
   PLANNED_ENROLLMENT: { endpoint: "planned_enrollments.php", transform: (rows) => rows.map(r => ({ ...r, student_id: Number(r.student_id) })) },
   TASK:               { endpoint: "tasks.php",              transform: (rows) => rows.map(r => ({ ...r, t_id: Number(r.t_id), student_id: Number(r.student_id) })) },
-  CONSULTATION:       { endpoint: "consultations.php",      transform: (rows) => rows.map(r => ({ ...r, booking_id: Number(r.Booking_id ?? r.booking_id), faculty_id: Number(r.Faculty_id ?? r.faculty_id) })) },
+  CONSULTATION:       {
+    endpoint: "consultations.php",
+    transform: (rows) => rows.map((r) => ({
+      // preserve original fields then override with normalized keys
+      ...r,
+      booking_id: Number(r.Booking_id ?? r.booking_id),
+      faculty_id: Number(r.Faculty_id ?? r.faculty_id),
+      // normalize casing to match existing UI expectations
+      Day: r.Day ?? r.day,
+      Start_Time: r.Start_Time ?? r.start_time,
+      End_Time: r.End_Time ?? r.end_time,
+      room_id: r.room_id ? Number(r.room_id) : (r.Room_id ? Number(r.Room_id) : undefined),
+      Room_No: r.Room_No ?? r.room_no ?? r.roomNumber,
+      Building: r.Building ?? r.building,
+    }))
+  },
+  
   CONSULTATION_BOOKING: { endpoint: "consultation_bookings.php", transform: (rows) => rows.map(r => ({ ...r, cb_id: Number(r.cb_id), booking_id: Number(r.booking_id), student_id: Number(r.student_id) })) },
   RESOURCES:          { endpoint: "resources.php",          transform: (rows) => rows.map(r => ({ ...r, resource_id: Number(r.resource_id), uploaded_by: Number(r.uploaded_by) })) },
 };
