@@ -12,12 +12,27 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  GraduationCap, Users, BookOpen, CalendarCheck, Library, Plus, Trash2, Check, X,
+  apiAddConsultation,
+  apiDeleteConsultation,
+  apiUpdateConsultation,
+  apiUpdateConsultationBookingStatus,
+} from "@/lib/api";
+import {
+  GraduationCap, Users, BookOpen, CalendarCheck, Library, Plus, Trash2, Check, X, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu"];
+const DAY_ORDER = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 const TYPES = ["Note", "Slides", "Video", "Link", "Assignment", "Reading"];
+
+const createSlotDraft = (roomId = "") => ({
+  booking_id: null,
+  day: "Mon",
+  start_time: "14:00",
+  end_time: "14:30",
+  room_id: roomId,
+});
 
 const nextId = (rows, key) => rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) + 1;
 
@@ -45,8 +60,8 @@ export default function Faculty() {
   const rooms = useMemo(() => getTable("ROOM"), []);
   const students = useMemo(() => getTable("REGULAR_STUDENT"), [version]);
   const enrollments = useMemo(() => getTable("ENROLLMENT"), [version]);
-  const slots = useMemo(() => getTable("FACULTY_SLOT"), [version]);
-  const consults = useMemo(() => getTable("CONSULTATION"), [version]);
+  const consultationSlots = useMemo(() => getTable("CONSULTATION"), [version]);
+  const consultationBookings = useMemo(() => getTable("CONSULTATION_BOOKING"), [version]);
   const resources = useMemo(() => getTable("RESOURCES"), [version]);
 
   const mySections = sections.filter((s) => s.faculty_id === activeId);
@@ -54,19 +69,50 @@ export default function Faculty() {
   const advisees = students
     .filter((s) => s.advisor_id === activeId)
     .map((s) => ({ ...s, ...users.find((u) => u.user_id === s.user_id) }));
-  const mySlots = slots.filter((s) => s.faculty_id === activeId);
-  const mySlotIds = new Set(mySlots.map((s) => s.slot_id));
-  const myConsults = consults
-    .filter((c) => mySlotIds.has(c.slot_id))
-    .map((c) => ({
-      ...c,
-      slot: slots.find((s) => s.slot_id === c.slot_id),
-      student: users.find((u) => u.user_id === c.student_id),
-    }));
+  const myConsultationSlots = consultationSlots
+    .filter((slot) => Number(slot.faculty_id) === Number(active?.faculty_id))
+    .sort((a, b) => {
+      const dayDiff = (DAY_ORDER[a.day ?? a.Day] ?? 9) - (DAY_ORDER[b.day ?? b.Day] ?? 9);
+      if (dayDiff !== 0) return dayDiff;
+      return String(a.start_time ?? a.Start_Time ?? "").localeCompare(String(b.start_time ?? b.Start_Time ?? ""));
+    });
+  const myConsultationBookings = consultationBookings
+    .map((booking) => {
+      const slot = consultationSlots.find((s) => Number(s.booking_id) === Number(booking.booking_id));
+      if (!slot || Number(slot.faculty_id) !== Number(active?.faculty_id)) return null;
+      return {
+        ...booking,
+        slot,
+        student: users.find((u) => u.user_id === booking.student_id),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => new Date(b.booked_at ?? 0) - new Date(a.booked_at ?? 0));
   const myResources = resources.filter((r) => myCourseCodes.includes(r.course_code));
 
   const [resOpen, setResOpen] = useState(false);
   const [resDraft, setResDraft] = useState({ course_code: "", title: "", type: "Link", url: "" });
+  const [slotOpen, setSlotOpen] = useState(false);
+  const [slotMode, setSlotMode] = useState("create");
+  const [slotDraft, setSlotDraft] = useState(createSlotDraft());
+
+  const openSlotDialog = (slot = null) => {
+    if (slot) {
+      setSlotMode("edit");
+      setSlotDraft({
+        booking_id: slot.booking_id,
+        day: slot.day ?? slot.Day ?? "Mon",
+        start_time: slot.start_time ?? slot.Start_Time ?? "14:00",
+        end_time: slot.end_time ?? slot.End_Time ?? "14:30",
+        room_id: String(slot.room_id ?? ""),
+      });
+    } else {
+      setSlotMode("create");
+      setSlotDraft(createSlotDraft(String(rooms[0]?.room_id ?? "")));
+    }
+    setSlotOpen(true);
+  };
+
   const submitResource = () => {
     if (!resDraft.course_code || !resDraft.title || !resDraft.url) {
       toast.error("Course, title and URL are required."); return;
@@ -91,36 +137,60 @@ export default function Faculty() {
     updateTable("RESOURCES", (rows) => rows.filter((r) => r.resource_id !== id));
   };
 
-  const [slotOpen, setSlotOpen] = useState(false);
-  const [slotDraft, setSlotDraft] = useState({ day: "Mon", start_time: "14:00", end_time: "14:30", room_id: "" });
-  const submitSlot = () => {
+  const submitSlot = async () => {
     if (!slotDraft.day || !slotDraft.start_time || !slotDraft.end_time || !slotDraft.room_id) {
       toast.error("All slot fields are required."); return;
     }
-    updateTable("FACULTY_SLOT", (rows) => [
-      ...rows,
-      {
-        slot_id: nextId(rows, "slot_id"),
-        faculty_id: activeId,
-        day: slotDraft.day,
-        start_time: slotDraft.start_time,
-        end_time: slotDraft.end_time,
-        room_id: Number(slotDraft.room_id),
-      },
-    ]);
-    setSlotDraft({ day: "Mon", start_time: "14:00", end_time: "14:30", room_id: "" });
-    setSlotOpen(false);
-    toast.success("Office-hour slot added.");
+    const payload = {
+      faculty_id: active.faculty_id,
+      day: slotDraft.day,
+      start_time: slotDraft.start_time,
+      end_time: slotDraft.end_time,
+      room_id: Number(slotDraft.room_id),
+    };
+
+    try {
+      if (slotMode === "edit") {
+        await apiUpdateConsultation({ ...payload, booking_id: slotDraft.booking_id });
+        updateTable("CONSULTATION", (rows) =>
+          rows.map((row) => (Number(row.booking_id) === Number(slotDraft.booking_id) ? { ...row, ...payload } : row)),
+        );
+        toast.success("Office-hour slot updated.");
+      } else {
+        const res = await apiAddConsultation(payload);
+        const bookingId = Number(res.booking_id ?? res.Booking_id);
+        updateTable("CONSULTATION", (rows) => [
+          ...rows,
+          { booking_id: bookingId, ...payload },
+        ]);
+        toast.success("Office-hour slot added.");
+      }
+      setSlotDraft(createSlotDraft(String(rooms[0]?.room_id ?? "")));
+      setSlotOpen(false);
+    } catch (err) {
+      toast.error(err.message || "Failed to save slot.");
+    }
   };
-  const removeSlot = (id) => {
-    updateTable("FACULTY_SLOT", (rows) => rows.filter((r) => r.slot_id !== id));
+  const removeSlot = async (bookingId) => {
+    try {
+      await apiDeleteConsultation(bookingId);
+      updateTable("CONSULTATION", (rows) => rows.filter((row) => Number(row.booking_id) !== Number(bookingId)));
+      toast.success("Office-hour slot removed.");
+    } catch (err) {
+      toast.error(err.message || "Failed to remove slot.");
+    }
   };
 
-  const setConsultStatus = (cId, status) => {
-    updateTable("CONSULTATION", (rows) =>
-      rows.map((r) => (r.c_id === cId ? { ...r, status } : r)),
-    );
-    toast.success(`Marked as ${status}.`);
+  const setConsultStatus = async (cbId, status) => {
+    try {
+      await apiUpdateConsultationBookingStatus(cbId, status);
+      updateTable("CONSULTATION_BOOKING", (rows) =>
+        rows.map((row) => (Number(row.cb_id) === Number(cbId) ? { ...row, status } : row)),
+      );
+      toast.success(`Marked as ${status}.`);
+    } catch (err) {
+      toast.error(err.message || "Failed to update booking.");
+    }
   };
 
   if (!active) return <div className="paper-card p-10 text-center text-muted-foreground">No faculty seeded.</div>;
@@ -153,7 +223,7 @@ export default function Faculty() {
       <div className="grid gap-3 sm:grid-cols-4">
         <StatCard icon={BookOpen}      label="Sections"   value={mySections.length} />
         <StatCard icon={Users}         label="Advisees"   value={advisees.length} />
-        <StatCard icon={CalendarCheck} label="Bookings"   value={myConsults.filter((c) => c.status === "booked").length} />
+        <StatCard icon={CalendarCheck} label="Bookings"   value={myConsultationBookings.filter((b) => b.status === "booked").length} />
         <StatCard icon={Library}       label="Resources"  value={myResources.length} />
       </div>
 
@@ -232,14 +302,32 @@ export default function Faculty() {
         </TabsContent>
 
         <TabsContent value="consultations" className="mt-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="serif text-2xl">Office-hour slots</h3>
-            <Dialog open={slotOpen} onOpenChange={setSlotOpen}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h3 className="serif text-2xl">Office-hour slots</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Slots assigned to {active.name}.
+              </p>
+            </div>
+            <Dialog
+              open={slotOpen}
+              onOpenChange={(open) => {
+                setSlotOpen(open);
+                if (!open) {
+                  setSlotMode("create");
+                  setSlotDraft(createSlotDraft(String(rooms[0]?.room_id ?? "")));
+                }
+              }}
+            >
               <DialogTrigger asChild>
-                <Button size="sm"><Plus className="h-4 w-4" /> Add slot</Button>
+                <Button size="sm" onClick={() => openSlotDialog()}>
+                  <Plus className="h-4 w-4" /> Add slot
+                </Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader><DialogTitle>New office-hour slot</DialogTitle></DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>{slotMode === "edit" ? "Edit office-hour slot" : "New office-hour slot"}</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -253,7 +341,7 @@ export default function Faculty() {
                     </div>
                     <div>
                       <Label>Room</Label>
-                      <Select value={String(slotDraft.room_id)} onValueChange={(v) => setSlotDraft({ ...slotDraft, room_id: v })}>
+                      <Select value={slotDraft.room_id} onValueChange={(v) => setSlotDraft({ ...slotDraft, room_id: v })}>
                         <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
                           {rooms.map((r) => <SelectItem key={r.room_id} value={String(r.room_id)}>{r.room_no}</SelectItem>)}
@@ -281,19 +369,23 @@ export default function Faculty() {
           </div>
 
           <div className="paper-card p-4">
-            {mySlots.length === 0 ? (
+            {myConsultationSlots.length === 0 ? (
               <p className="text-sm text-muted-foreground">No office-hour slots posted.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {mySlots.map((s) => {
-                  const r = rooms.find((rm) => rm.room_id === s.room_id);
+                {myConsultationSlots.map((slot) => {
+                  const room = rooms.find((rm) => rm.room_id === slot.room_id);
+                  const bookingCount = myConsultationBookings.filter((booking) => Number(booking.booking_id) === Number(slot.booking_id)).length;
                   return (
-                    <div key={s.slot_id} className="flex items-center gap-2 px-3 py-2 border border-border rounded-sm bg-secondary/30">
-                      <div className="text-sm">
-                        <div className="font-medium">{s.day} · {s.start_time}–{s.end_time}</div>
-                        <div className="text-xs text-muted-foreground">{r?.room_no}</div>
+                    <div key={slot.booking_id} className="flex items-center gap-2 px-3 py-2 border border-border rounded-sm bg-secondary/30">
+                      <div className="text-sm min-w-0">
+                        <div className="font-medium">{slot.day ?? slot.Day} · {slot.start_time ?? slot.Start_Time}–{slot.end_time ?? slot.End_Time}</div>
+                        <div className="text-xs text-muted-foreground">{room?.room_no} · {bookingCount} booking{bookingCount === 1 ? "" : "s"}</div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeSlot(s.slot_id)}>
+                      <Button variant="ghost" size="icon" onClick={() => openSlotDialog(slot)} title="Edit slot">
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => removeSlot(slot.booking_id)} title="Delete slot">
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>
@@ -305,36 +397,44 @@ export default function Faculty() {
 
           <h3 className="serif text-2xl pt-2">Booking requests</h3>
           <div className="paper-card p-4">
-            {myConsults.length === 0 ? (
+            {myConsultationBookings.length === 0 ? (
               <p className="text-sm text-muted-foreground">No bookings yet.</p>
             ) : (
               <ul className="divide-y divide-border">
-                {myConsults.map((c) => (
-                  <li key={c.c_id} className="py-3 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-medium">{c.student?.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {c.slot?.day} · {c.slot?.start_time}–{c.slot?.end_time} · {rooms.find((r) => r.room_id === c.slot?.room_id)?.room_no}
+                {myConsultationBookings.map((booking) => {
+                  const room = rooms.find((r) => r.room_id === booking.slot?.room_id);
+                  const badgeVariant = booking.status === "cancelled" ? "outline" : booking.status === "completed" ? "secondary" : "default";
+                  return (
+                    <li key={booking.cb_id} className="py-3 flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-medium">{booking.student?.name ?? "Unknown student"}</div>
+                        <div className="text-xs text-muted-foreground">
+                          ID {booking.student_id} · {booking.student?.dept ?? ""}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {booking.slot?.day ?? booking.slot?.Day} · {booking.slot?.start_time ?? booking.slot?.Start_Time}–{booking.slot?.end_time ?? booking.slot?.End_Time} · {room?.room_no}
+                        </div>
+                        <p className="text-sm mt-1"><span className="text-muted-foreground">Topic:</span> {booking.topic}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Booked {booking.booked_at ? new Date(booking.booked_at).toLocaleString() : "recently"}
+                        </p>
                       </div>
-                      <p className="text-sm mt-1"><span className="text-muted-foreground">Topic:</span> {c.topic}</p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={c.status === "cancelled" ? "outline" : c.status === "completed" ? "secondary" : "default"}>
-                        {c.status}
-                      </Badge>
-                      {c.status === "booked" && (
-                        <>
-                          <Button size="icon" variant="ghost" title="Mark completed" onClick={() => setConsultStatus(c.c_id, "completed")}>
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" title="Cancel" onClick={() => setConsultStatus(c.c_id, "cancelled")}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant={badgeVariant}>{booking.status}</Badge>
+                        {booking.status === "booked" && (
+                          <>
+                            <Button size="icon" variant="ghost" title="Mark completed" onClick={() => setConsultStatus(booking.cb_id, "completed")}>
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" title="Cancel" onClick={() => setConsultStatus(booking.cb_id, "cancelled")}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

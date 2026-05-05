@@ -54,17 +54,21 @@ const TABLE_ENDPOINTS = {
   CONSULTATION:       {
     endpoint: "consultations.php",
     transform: (rows) => rows.map((r) => ({
-      // preserve original fields then override with normalized keys
       ...r,
       booking_id: Number(r.Booking_id ?? r.booking_id),
       faculty_id: Number(r.Faculty_id ?? r.faculty_id),
-      // normalize casing to match existing UI expectations
+      day: r.day ?? r.Day,
+      start_time: r.start_time ?? r.Start_Time,
+      end_time: r.end_time ?? r.End_Time,
       Day: r.Day ?? r.day,
       Start_Time: r.Start_Time ?? r.start_time,
       End_Time: r.End_Time ?? r.end_time,
       room_id: r.room_id ? Number(r.room_id) : (r.Room_id ? Number(r.Room_id) : undefined),
-      Room_No: r.Room_No ?? r.room_no ?? r.roomNumber,
+      room_no: r.room_no ?? r.Room_No,
+      Room_No: r.Room_No ?? r.room_no,
       Building: r.Building ?? r.building,
+      faculty_name: r.faculty_name,
+      dept: r.dept,
     }))
   },
   
@@ -131,6 +135,22 @@ export async function apiBookConsultation(booking) {
 
 export async function apiCancelConsultation(cb_id) {
   return putJSON("consultation_bookings.php", { cb_id, status: "cancelled" });
+}
+
+export async function apiUpdateConsultationBookingStatus(cb_id, status) {
+  return putJSON("consultation_bookings.php", { cb_id, status });
+}
+
+export async function apiAddConsultation(slot) {
+  return postJSON("consultations.php", slot);
+}
+
+export async function apiUpdateConsultation(slot) {
+  return putJSON("consultations.php", slot);
+}
+
+export async function apiDeleteConsultation(booking_id) {
+  return deleteJSON("consultations.php", { booking_id });
 }
 
 export async function apiAddResource(resource) {

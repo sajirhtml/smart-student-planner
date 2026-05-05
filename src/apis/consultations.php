@@ -38,10 +38,24 @@ if ($method === 'GET') {
         http_response_code(400);
         echo json_encode(["error" => $stmt->error]);
     }
+} elseif ($method === 'PUT') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $booking_id = intval($data['booking_id'] ?? $data['Booking_id'] ?? 0);
+
+    $stmt = $conn->prepare("UPDATE consultation SET Faculty_id = ?, `Day` = ?, Start_time = ?, End_time = ?, room_id = ? WHERE Booking_id = ?");
+    $stmt->bind_param("isssii", $data['faculty_id'], $data['day'], $data['start_time'], $data['end_time'], $data['room_id'], $booking_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true]);
+    } else {
+        http_response_code(400);
+        echo json_encode(["error" => $stmt->error]);
+    }
 } elseif ($method === 'DELETE') {
     $data = json_decode(file_get_contents("php://input"), true);
+    $booking_id = intval($data['booking_id'] ?? $data['Booking_id'] ?? 0);
     $stmt = $conn->prepare("DELETE FROM consultation WHERE Booking_id = ?");
-    $stmt->bind_param("i", $data['booking_id']);
+    $stmt->bind_param("i", $booking_id);
     $stmt->execute();
     echo json_encode(["success" => true]);
 }
