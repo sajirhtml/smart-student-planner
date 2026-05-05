@@ -69,7 +69,6 @@ export default function ManageCourses() {
       window.dispatchEvent(new Event("scms:change"));
       setForm({ course_code: "", semester: "", grade_point: "" });
       setSuccess("Course added successfully!");
-      // Refresh enrollments
       const updated = await fetchTable("ENROLLMENT");
       const myEnroll = updated.filter((en) => en.student_id === user_id);
       setEnrollments(myEnroll);
@@ -107,7 +106,6 @@ export default function ManageCourses() {
       {error && <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md text-sm">{error}</div>}
       {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">{success}</div>}
 
-      {/* Add Course Form */}
       <Card>
         <CardHeader>
           <CardTitle>Add Completed Course</CardTitle>
@@ -164,7 +162,6 @@ export default function ManageCourses() {
         </CardContent>
       </Card>
 
-      {/* Enrollments List */}
       <Card>
         <CardHeader>
           <CardTitle>

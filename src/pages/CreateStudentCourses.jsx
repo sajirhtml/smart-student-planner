@@ -65,7 +65,6 @@ export default function CreateStudentCourses() {
       status: "completed",
     }));
     if (entries.length === 0) {
-      // nothing to do — return to dashboard
       nav("/");
       return;
     }

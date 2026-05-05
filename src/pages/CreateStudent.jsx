@@ -24,7 +24,6 @@ export default function CreateStudent() {
   const submit = async (e) => {
     e.preventDefault();
     setError(null);
-    // Basic validation
     if (!form.first_name || !form.last_name || !form.student_id || !form.email) {
       setError("Please fill required fields (first name, last name, student id, email).");
       return;
@@ -41,9 +40,7 @@ export default function CreateStudent() {
         semester: form.semester.trim(),
       };
       const res = await postJSON("create_student.php", payload);
-      // refresh client data
       window.dispatchEvent(new Event("scms:change"));
-      // go to course selection to enter completed courses
       const sid = encodeURIComponent(payload.student_id);
       const sem = encodeURIComponent(payload.semester || "");
       navigate(`/students/new/courses?student_id=${sid}&semester=${sem}`);

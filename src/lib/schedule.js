@@ -1,7 +1,7 @@
 import { getTable } from "@/lib/db";
 
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu"];
-export const HOURS = Array.from({ length: 11 }, (_, i) => 8 + i); // 08:00 - 18:00
+export const HOURS = Array.from({ length: 11 }, (_, i) => 8 + i);
 
 const toMin = (t) => {
   const [h, m] = t.split(":").map(Number);

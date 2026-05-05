@@ -32,34 +32,36 @@ export default function Dashboard() {
   if (!activeStudent) return null;
 
   return (
-    <div className="space-y-10">
-      <header className="border-b border-border pb-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Welcome back</p>
-        <h2 className="serif text-5xl mt-3">{activeStudent.name}</h2>
-        <p className="text-muted-foreground mt-2">
-          {activeStudent.dept} · Semester {activeStudent.semester} · CGPA {activeStudent.cgpa?.toFixed(2)}
-        </p>
-        <div className="mt-4">
-          <Link to="/students/new" className="btn btn-sm">Create student</Link>
+    <div className="space-y-12">
+      <header className="space-y-6">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-medium">Welcome back</p>
+          <h1 className="serif text-5xl md:text-6xl mt-4 font-light">{activeStudent.name}</h1>
+          <p className="text-muted-foreground mt-3 text-base">
+            {activeStudent.dept} · Semester {activeStudent.semester} · CGPA {activeStudent.cgpa?.toFixed(2)}
+          </p>
         </div>
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Stat label="Completed courses" value={stats.completed} />
-        <Stat label="Planned credits" value={`${stats.credits} / ${CREDIT_CAP}`} />
+        <Stat label="Completed Courses" value={stats.completed} />
+        <Stat label="Planned Credits" value={`${stats.credits} / ${CREDIT_CAP}`} />
         <Stat label="Current CGPA" value={activeStudent.cgpa?.toFixed(2) ?? "—"} />
       </section>
 
-      <section>
-        <h3 className="serif text-2xl mb-4">Modules</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <section className="space-y-5">
+        <div>
+          <h2 className="serif text-3xl font-light">Quick Access</h2>
+          <p className="text-muted-foreground text-sm mt-1">Explore all available tools and features</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {CARDS.map((c) => (
             <Link
               key={c.to}
               to={c.to}
-              className="paper-card p-5 hover:border-foreground transition-colors group"
+              className="paper-card p-5 hover:border-foreground hover:shadow-lg active:scale-95 transition-all group"
             >
-              <h4 className="serif text-xl group-hover:underline underline-offset-4">{c.title}</h4>
+              <h4 className="serif text-lg group-hover:text-primary">{c.title}</h4>
               <p className="text-sm text-muted-foreground mt-2">{c.desc}</p>
             </Link>
           ))}
@@ -71,9 +73,9 @@ export default function Dashboard() {
 
 function Stat({ label, value }) {
   return (
-    <div className="paper-card p-5">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="serif text-4xl mt-2">{value}</p>
+    <div className="paper-card p-6 bg-gradient-to-br from-card to-card/50">
+      <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">{label}</p>
+      <p className="serif text-4xl mt-3 font-light">{value}</p>
     </div>
   );
 }

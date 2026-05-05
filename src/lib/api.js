@@ -1,4 +1,3 @@
-// PHP API base URL — change this if your XAMPP setup differs.
 const BASE = "http://localhost/scms-api/api";
 
 async function fetchJSON(endpoint) {
@@ -67,9 +66,6 @@ async function deleteJSON(endpoint, body) {
   return payload;
 }
 
-// ---------- Table-specific fetchers ----------
-
-// Maps our internal table names to PHP endpoints + response transforms.
 const TABLE_ENDPOINTS = {
   USERS:              { endpoint: "users.php",              transform: (rows) => rows.map(r => ({ ...r, user_id: Number(r.user_id), is_guest: Number(r.is_guest) })) },
   REGULAR_STUDENT:    { endpoint: "students.php",           transform: (rows) => rows.map(r => ({ ...r, user_id: Number(r.user_id), student_id: Number(r.student_id), cgpa: parseFloat(r.cgpa), advisor_id: Number(r.advisor_id) })) },
@@ -106,9 +102,6 @@ const TABLE_ENDPOINTS = {
   RESOURCES:          { endpoint: "resources.php",          transform: (rows) => rows.map(r => ({ ...r, resource_id: Number(r.resource_id), uploaded_by: Number(r.uploaded_by) })) },
 };
 
-/**
- * Fetch a single table from the API and return the rows.
- */
 export async function fetchTable(tableName) {
   const cfg = TABLE_ENDPOINTS[tableName];
   if (!cfg) {
@@ -124,9 +117,6 @@ export async function fetchTable(tableName) {
   }
 }
 
-/**
- * Fetch all tables in parallel and return a map { TABLE_NAME: rows[] }.
- */
 export async function fetchAllTables() {
   const names = Object.keys(TABLE_ENDPOINTS);
   const results = await Promise.allSettled(names.map((n) => fetchTable(n)));
@@ -136,8 +126,6 @@ export async function fetchAllTables() {
   });
   return map;
 }
-
-// ---------- Write helpers ----------
 
 export async function apiAddTask(task) {
   return postJSON("tasks.php", task);

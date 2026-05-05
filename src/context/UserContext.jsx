@@ -12,7 +12,6 @@ export function UserProvider({ children }) {
     return raw ? Number(raw) : 1;
   });
 
-  // Load data from API on mount
   useEffect(() => {
     loadFromAPI().then(() => {
       setLoading(false);

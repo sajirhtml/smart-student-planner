@@ -26,9 +26,7 @@ export default function Consultations() {
     return () => window.removeEventListener("scms:change", h);
   }, []);
 
-  // consultation table = faculty availability slots
   const slots = useMemo(() => getTable("CONSULTATION"), [version]);
-  // consultation_booking = student bookings
   const bookings = useMemo(() => getTable("CONSULTATION_BOOKING"), [version]);
   const users = useMemo(() => getTable("USERS"), []);
   const faculty = useMemo(() => getTable("FACULTY"), []);
@@ -37,14 +35,11 @@ export default function Consultations() {
   const facultyById = (id) => users.find((u) => u.user_id === id);
   const roomById = (id) => rooms.find((r) => r.room_id === id);
 
-  // Set of slot booking_ids that are currently taken (only "booked" status blocks the slot)
-  // Once marked completed or cancelled, the slot becomes available again
   const bookedSlotIds = useMemo(
     () => new Set(bookings.filter((b) => b.status === "booked").map((b) => b.booking_id)),
     [bookings],
   );
 
-  // Current student's active bookings
   const myBookings = useMemo(
     () => bookings
       .filter((b) => b.student_id === sid && b.status !== "cancelled")
@@ -53,7 +48,6 @@ export default function Consultations() {
     [bookings, slots, sid],
   );
 
-  // Group slots by faculty
   const byFaculty = useMemo(() => {
     const m = {};
     faculty.forEach((f) => { m[f.faculty_id] = []; });
@@ -86,7 +80,6 @@ export default function Consultations() {
         student_id: sid,
         topic: topic.trim(),
       });
-      // Update local cache
       updateTable("CONSULTATION_BOOKING", (rows) => [
         ...rows,
         {
