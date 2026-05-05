@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import {
   LayoutDashboard, BookOpen, CalendarClock, Calculator, KanbanSquare,
-  DoorOpen, Library, CalendarCheck, GraduationCap, RotateCcw, Plus,
+  DoorOpen, Library, CalendarCheck, GraduationCap, RotateCcw, Plus, CheckSquare,
 } from "lucide-react";
 
 const NAV = [
@@ -16,6 +16,7 @@ const NAV = [
   { to: "/schedule",      label: "Schedule",       icon: CalendarClock },
   { to: "/cgpa",          label: "CGPA Predictor", icon: Calculator },
   { to: "/tasks",         label: "Tasks",          icon: KanbanSquare },
+  { to: "/courses",       label: "My Courses",     icon: CheckSquare },
   { to: "/rooms",         label: "Rooms",          icon: DoorOpen },
   { to: "/resources",     label: "Resources",      icon: Library },
   { to: "/consultations", label: "Consultations",  icon: CalendarCheck },

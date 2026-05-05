@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound.tsx";
 import CreateStudent from "@/pages/CreateStudent.jsx";
 import CreateStudentCourses from "@/pages/CreateStudentCourses.jsx";
 import EditStudent from "@/pages/EditStudent.jsx";
+import ManageCourses from "@/pages/ManageCourses.jsx";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/students/new/courses" element={<CreateStudentCourses />} />
               <Route path="/students/:userId/edit" element={<EditStudent />} />
               <Route path="/students/:userId/courses" element={<CreateStudentCourses />} />
+              <Route path="/courses" element={<ManageCourses />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

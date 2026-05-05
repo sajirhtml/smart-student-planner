@@ -37,9 +37,10 @@ export default function Consultations() {
   const facultyById = (id) => users.find((u) => u.user_id === id);
   const roomById = (id) => rooms.find((r) => r.room_id === id);
 
-  // Set of slot booking_ids that are taken
+  // Set of slot booking_ids that are currently taken (only "booked" status blocks the slot)
+  // Once marked completed or cancelled, the slot becomes available again
   const bookedSlotIds = useMemo(
-    () => new Set(bookings.filter((b) => b.status !== "cancelled").map((b) => b.booking_id)),
+    () => new Set(bookings.filter((b) => b.status === "booked").map((b) => b.booking_id)),
     [bookings],
   );
 

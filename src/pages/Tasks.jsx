@@ -36,6 +36,12 @@ function dueClass(dateStr, status) {
   return "text-muted-foreground";
 }
 
+function buildTaskTitle(courseCode, title) {
+  const trimmedTitle = title.trim();
+  const trimmedCourse = courseCode.trim();
+  return trimmedCourse ? `${trimmedCourse}_${trimmedTitle}` : trimmedTitle;
+}
+
 export default function Tasks() {
   const { activeStudent } = useUser();
   const sid = activeStudent?.user_id;
@@ -66,15 +72,16 @@ export default function Tasks() {
   }, [sid, tick]);
 
   const addTask = () => {
+    if (!draft.course_code) { toast.error("Course is required"); return; }
     if (!draft.title.trim()) { toast.error("Title is required"); return; }
     const newTask = {
       t_id: nextId(getTable("TASK")),
       student_id: sid,
-      title: draft.title.trim(),
+      title: buildTaskTitle(draft.course_code, draft.title),
+      course: draft.course_code,
       type: draft.type,
-      course_code: draft.course_code || null,
       status: "todo",
-      due_date: draft.due_date || null,
+      due_date: draft.due_date,
     };
     updateTable("TASK", (rows) => [...rows, newTask]);
     apiAddTask(newTask).catch((e) => console.error("API addTask:", e));
@@ -84,10 +91,18 @@ export default function Tasks() {
   };
 
   const moveTask = (t_id, status) => {
+    const current = getTable("TASK").find((r) => r.t_id === t_id && r.student_id === sid);
     updateTable("TASK", (rows) =>
       rows.map((r) => (r.t_id === t_id && r.student_id === sid ? { ...r, status } : r))
     );
-    apiUpdateTask({ t_id, status }).catch((e) => console.error("API moveTask:", e));
+    apiUpdateTask({
+      t_id,
+      status,
+      title: current?.title,
+      course: current?.course,
+      type: current?.type,
+      due_date: current?.due_date,
+    }).catch((e) => console.error("API moveTask:", e));
   };
 
   const removeTask = (t_id) => {
@@ -217,8 +232,8 @@ export default function Tasks() {
                     </div>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <Badge variant="outline" className="text-[10px]">{t.type}</Badge>
-                      {t.course_code && (
-                        <Badge variant="secondary" className="text-[10px]">{t.course_code}</Badge>
+                      {t.course && (
+                        <Badge variant="secondary" className="text-[10px]">{t.course}</Badge>
                       )}
                     </div>
                     {t.due_date && (
