@@ -109,6 +109,14 @@ export async function apiDeletePlannedEnrollment(student_id, course_code) {
   return deleteJSON("planned_enrollments.php", { student_id, course_code });
 }
 
+export async function apiBookConsultation(booking) {
+  return postJSON("consultation_bookings.php", booking);
+}
+
+export async function apiCancelConsultation(cb_id) {
+  return putJSON("consultation_bookings.php", { cb_id, status: "cancelled" });
+}
+
 export async function apiAddResource(resource) {
   return postJSON("resources.php", resource);
 }
