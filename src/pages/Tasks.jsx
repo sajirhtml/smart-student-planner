@@ -77,7 +77,7 @@ export default function Tasks() {
     const newTask = {
       t_id: nextId(getTable("TASK")),
       student_id: sid,
-      title: buildTaskTitle(draft.course_code, draft.title),
+      title: draft.title.trim(),
       course: draft.course_code,
       type: draft.type,
       status: "todo",
