@@ -51,7 +51,8 @@ const TABLE_ENDPOINTS = {
   ENROLLMENT:         { endpoint: "enrollments.php",        transform: (rows) => rows.map(r => ({ ...r, student_id: Number(r.student_id), grade_point: parseFloat(r.grade_point) })) },
   PLANNED_ENROLLMENT: { endpoint: "planned_enrollments.php", transform: (rows) => rows.map(r => ({ ...r, student_id: Number(r.student_id) })) },
   TASK:               { endpoint: "tasks.php",              transform: (rows) => rows.map(r => ({ ...r, t_id: Number(r.t_id), student_id: Number(r.student_id) })) },
-  CONSULTATION:       { endpoint: "consultations.php",      transform: (rows) => rows.map(r => ({ ...r, faculty_id: Number(r.faculty_id) })) },
+  CONSULTATION:       { endpoint: "consultations.php",      transform: (rows) => rows.map(r => ({ ...r, booking_id: Number(r.Booking_id ?? r.booking_id), faculty_id: Number(r.Faculty_id ?? r.faculty_id) })) },
+  CONSULTATION_BOOKING: { endpoint: "consultation_bookings.php", transform: (rows) => rows.map(r => ({ ...r, cb_id: Number(r.cb_id), booking_id: Number(r.booking_id), student_id: Number(r.student_id) })) },
   RESOURCES:          { endpoint: "resources.php",          transform: (rows) => rows.map(r => ({ ...r, resource_id: Number(r.resource_id), uploaded_by: Number(r.uploaded_by) })) },
 };
 
@@ -106,6 +107,14 @@ export async function apiAddPlannedEnrollment(row) {
 
 export async function apiDeletePlannedEnrollment(student_id, course_code) {
   return deleteJSON("planned_enrollments.php", { student_id, course_code });
+}
+
+export async function apiBookConsultation(booking) {
+  return postJSON("consultation_bookings.php", booking);
+}
+
+export async function apiCancelConsultation(cb_id) {
+  return putJSON("consultation_bookings.php", { cb_id, status: "cancelled" });
 }
 
 export async function apiAddResource(resource) {

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { getTable, updateTable } from "@/lib/db";
+import { apiBookConsultation, apiCancelConsultation } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
@@ -14,13 +14,9 @@ import { toast } from "sonner";
 
 const DAY_ORDER = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4 };
 
-function nextId(rows) {
-  return rows.reduce((m, r) => Math.max(m, r.c_id ?? 0), 0) + 1;
-}
-
 export default function Consultations() {
   const { activeStudent } = useUser();
-  const sid = activeStudent?.user_id;
+  const sid = activeStudent?.student_id;
 
   const [version, setVersion] = useState(0);
   const bump = () => setVersion((v) => v + 1);
@@ -30,8 +26,10 @@ export default function Consultations() {
     return () => window.removeEventListener("scms:change", h);
   }, []);
 
-  const slots = useMemo(() => getTable("FACULTY_SLOT"), [version]);
-  const consults = useMemo(() => getTable("CONSULTATION"), [version]);
+  // consultation table = faculty availability slots
+  const slots = useMemo(() => getTable("CONSULTATION"), [version]);
+  // consultation_booking = student bookings
+  const bookings = useMemo(() => getTable("CONSULTATION_BOOKING"), [version]);
   const users = useMemo(() => getTable("USERS"), []);
   const faculty = useMemo(() => getTable("FACULTY"), []);
   const rooms = useMemo(() => getTable("ROOM"), []);
@@ -39,29 +37,33 @@ export default function Consultations() {
   const facultyById = (id) => users.find((u) => u.user_id === id);
   const roomById = (id) => rooms.find((r) => r.room_id === id);
 
+  // Set of slot booking_ids that are taken
   const bookedSlotIds = useMemo(
-    () => new Set(consults.filter((c) => c.status !== "cancelled").map((c) => c.slot_id)),
-    [consults],
+    () => new Set(bookings.filter((b) => b.status !== "cancelled").map((b) => b.booking_id)),
+    [bookings],
   );
 
+  // Current student's active bookings
   const myBookings = useMemo(
-    () => consults
-      .filter((c) => c.student_id === sid && c.status !== "cancelled")
-      .map((c) => ({ ...c, slot: slots.find((s) => s.slot_id === c.slot_id) }))
-      .sort((a, b) => (DAY_ORDER[a.slot?.day] ?? 9) - (DAY_ORDER[b.slot?.day] ?? 9)),
-    [consults, slots, sid],
+    () => bookings
+      .filter((b) => b.student_id === sid && b.status !== "cancelled")
+      .map((b) => ({ ...b, slot: slots.find((s) => s.booking_id === b.booking_id) }))
+      .sort((a, b) => (DAY_ORDER[a.slot?.Day] ?? 9) - (DAY_ORDER[b.slot?.Day] ?? 9)),
+    [bookings, slots, sid],
   );
 
+  // Group slots by faculty
   const byFaculty = useMemo(() => {
     const m = {};
-    faculty.forEach((f) => { m[f.user_id] = []; });
+    faculty.forEach((f) => { m[f.faculty_id] = []; });
     slots.forEach((s) => {
-      m[s.faculty_id] = m[s.faculty_id] || [];
-      m[s.faculty_id].push(s);
+      const fid = s.faculty_id;
+      m[fid] = m[fid] || [];
+      m[fid].push(s);
     });
     Object.values(m).forEach((arr) =>
       arr.sort((a, b) =>
-        (DAY_ORDER[a.day] - DAY_ORDER[b.day]) || a.start_time.localeCompare(b.start_time),
+        (DAY_ORDER[a.Day] - DAY_ORDER[b.Day]) || (a.Start_Time || "").localeCompare(b.Start_Time || ""),
       ),
     );
     return m;
@@ -69,32 +71,51 @@ export default function Consultations() {
 
   const [dialog, setDialog] = useState({ open: false, slot: null });
   const [topic, setTopic] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const openBook = (slot) => { setTopic(""); setDialog({ open: true, slot }); };
 
-  const confirmBook = () => {
+  const confirmBook = async () => {
     if (!topic.trim()) { toast.error("Add a brief topic."); return; }
     if (!sid) { toast.error("No active student."); return; }
-    updateTable("CONSULTATION", (rows) => [
-      ...rows,
-      {
-        c_id: nextId(rows),
-        slot_id: dialog.slot.slot_id,
+    setSubmitting(true);
+    try {
+      const res = await apiBookConsultation({
+        booking_id: dialog.slot.booking_id,
         student_id: sid,
         topic: topic.trim(),
-        status: "booked",
-        booked_at: new Date().toISOString(),
-      },
-    ]);
-    setDialog({ open: false, slot: null });
-    toast.success("Consultation booked.");
+      });
+      // Update local cache
+      updateTable("CONSULTATION_BOOKING", (rows) => [
+        ...rows,
+        {
+          cb_id: res.cb_id,
+          booking_id: dialog.slot.booking_id,
+          student_id: sid,
+          topic: topic.trim(),
+          status: "booked",
+          booked_at: new Date().toISOString(),
+        },
+      ]);
+      setDialog({ open: false, slot: null });
+      toast.success("Consultation booked.");
+    } catch (err) {
+      toast.error(err.message || "Failed to book.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const cancel = (cId) => {
-    updateTable("CONSULTATION", (rows) =>
-      rows.map((r) => (r.c_id === cId ? { ...r, status: "cancelled" } : r)),
-    );
-    toast.success("Booking cancelled.");
+  const cancel = async (cbId) => {
+    try {
+      await apiCancelConsultation(cbId);
+      updateTable("CONSULTATION_BOOKING", (rows) =>
+        rows.map((r) => (r.cb_id === cbId ? { ...r, status: "cancelled" } : r)),
+      );
+      toast.success("Booking cancelled.");
+    } catch (err) {
+      toast.error("Failed to cancel.");
+    }
   };
 
   return (
@@ -118,19 +139,17 @@ export default function Consultations() {
           <div className="grid gap-3 sm:grid-cols-2">
             {myBookings.map((b) => {
               const fac = facultyById(b.slot?.faculty_id);
-              const room = roomById(b.slot?.room_id);
               return (
-                <div key={b.c_id} className="paper-card p-4 flex items-start justify-between gap-3">
+                <div key={b.cb_id} className="paper-card p-4 flex items-start justify-between gap-3">
                   <div>
                     <div className="serif text-xl">{fac?.name}</div>
                     <p className="text-xs text-muted-foreground">{fac?.dept}</p>
                     <div className="mt-2 text-sm flex flex-wrap gap-x-4 gap-y-1">
-                      <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{b.slot?.day} · {b.slot?.start_time}–{b.slot?.end_time}</span>
-                      <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{room?.room_no}</span>
+                      <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{b.slot?.Day} · {b.slot?.Start_Time}–{b.slot?.End_Time}</span>
                     </div>
                     <p className="text-sm mt-2"><span className="text-muted-foreground">Topic:</span> {b.topic}</p>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => cancel(b.c_id)} title="Cancel">
+                  <Button variant="ghost" size="icon" onClick={() => cancel(b.cb_id)} title="Cancel">
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -145,9 +164,9 @@ export default function Consultations() {
         <div className="space-y-4">
           {faculty.map((f) => {
             const u = facultyById(f.user_id);
-            const slotsList = byFaculty[f.user_id] || [];
+            const slotsList = byFaculty[f.faculty_id] || [];
             return (
-              <div key={f.user_id} className="paper-card p-5">
+              <div key={f.faculty_id} className="paper-card p-5">
                 <div className="flex items-baseline justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-sm bg-secondary flex items-center justify-center">
@@ -165,11 +184,10 @@ export default function Consultations() {
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {slotsList.map((s) => {
-                      const taken = bookedSlotIds.has(s.slot_id);
-                      const room = roomById(s.room_id);
+                      const taken = bookedSlotIds.has(s.booking_id);
                       return (
                         <button
-                          key={s.slot_id}
+                          key={s.booking_id}
                           disabled={taken}
                           onClick={() => openBook(s)}
                           className={`text-left px-3 py-2 rounded-sm border transition-colors ${
@@ -178,8 +196,8 @@ export default function Consultations() {
                               : "border-border hover:bg-foreground hover:text-background"
                           }`}
                         >
-                          <div className="text-sm font-medium">{s.day} · {s.start_time}–{s.end_time}</div>
-                          <div className="text-[11px] opacity-80">{room?.room_no}{taken ? " · booked" : ""}</div>
+                          <div className="text-sm font-medium">{s.Day} · {s.Start_Time}–{s.End_Time}</div>
+                          <div className="text-[11px] opacity-80">{taken ? "booked" : "available"}</div>
                         </button>
                       );
                     })}
@@ -199,7 +217,7 @@ export default function Consultations() {
               <div className="paper-card p-3 text-sm">
                 <div className="font-medium">{facultyById(dialog.slot.faculty_id)?.name}</div>
                 <div className="text-muted-foreground text-xs mt-1">
-                  {dialog.slot.day} · {dialog.slot.start_time}–{dialog.slot.end_time} · {roomById(dialog.slot.room_id)?.room_no}
+                  {dialog.slot.Day} · {dialog.slot.Start_Time}–{dialog.slot.End_Time}
                 </div>
               </div>
               <div>
@@ -215,7 +233,9 @@ export default function Consultations() {
           )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDialog({ open: false, slot: null })}>Cancel</Button>
-            <Button onClick={confirmBook}>Book slot</Button>
+            <Button onClick={confirmBook} disabled={submitting}>
+              {submitting ? "Booking…" : "Book slot"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

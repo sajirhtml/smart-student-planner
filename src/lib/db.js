@@ -21,9 +21,6 @@ export function loadFromAPI() {
         cache[name] = rows;
       });
       // Tables not served by the API — fall back to seed / empty
-      if (!cache.FACULTY_SLOT || cache.FACULTY_SLOT.length === 0) {
-        cache.FACULTY_SLOT = SEED.FACULTY_SLOT ?? [];
-      }
       if (!cache.ACADEMIC_RECORDS) cache.ACADEMIC_RECORDS = SEED.ACADEMIC_RECORDS ?? [];
       _ready = true;
       console.log("[db] Loaded from API", Object.keys(cache).map(k => `${k}(${cache[k]?.length})`));
