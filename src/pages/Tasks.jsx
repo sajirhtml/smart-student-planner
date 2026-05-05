@@ -56,7 +56,6 @@ export default function Tasks() {
     const all = getTable("TASK")
       .filter((t) => t.student_id === sid)
       .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""));
-    // courses linked = completed + planned (auto-link options)
     const completed = getTable("ENROLLMENT")
       .filter((e) => e.student_id === sid).map((e) => e.course_code);
     const planned = getTable("PLANNED_ENROLLMENT")

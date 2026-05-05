@@ -153,7 +153,6 @@ export default function Resources() {
         </Dialog>
       </div>
 
-      {/* Filters */}
       <div className="paper-card p-4 grid gap-3 md:grid-cols-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -182,7 +181,6 @@ export default function Resources() {
         </Select>
       </div>
 
-      {/* Grouped list */}
       {Object.keys(grouped).length === 0 ? (
         <div className="paper-card p-10 text-center text-muted-foreground">
           <Library className="h-8 w-8 mx-auto mb-3 opacity-60" />

@@ -1,8 +1,6 @@
-// Conflict-free schedule helpers.
 import { getTable } from "@/lib/db";
 
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu"];
-// Grid hours (24h)
 export const HOURS = Array.from({ length: 11 }, (_, i) => 8 + i); // 08:00 - 18:00
 
 const toMin = (t) => {
@@ -19,13 +17,11 @@ export function sectionsForCourse(courseCode) {
   return getTable("SECTION").filter((s) => s.course_code === courseCode);
 }
 
-// Backtracking: try to assign one section per planned course with no time clash.
 export function generateSchedule(plannedCourseCodes) {
   const optionLists = plannedCourseCodes.map((code) => ({
     code,
     options: sectionsForCourse(code),
   }));
-  // Sort fewest options first (constraint propagation).
   optionLists.sort((a, b) => a.options.length - b.options.length);
 
   const result = [];

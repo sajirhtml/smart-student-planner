@@ -96,7 +96,6 @@ export default function Rooms() {
         </div>
       </div>
 
-      {/* Results */}
       <div>
         <h2 className="serif text-2xl mb-3">
           Availability on {day}, {start}–{end}
@@ -140,7 +139,6 @@ export default function Rooms() {
         </div>
       </div>
 
-      {/* Weekly bookings per room */}
       <div>
         <h2 className="serif text-2xl mb-3">Weekly bookings</h2>
         <div className="space-y-4">

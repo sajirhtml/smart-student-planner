@@ -6,9 +6,8 @@
 
 @layer base {
   :root {
-    /* Paper academic palette */
-    --background: 42 30% 96%;          /* #f5f3ee */
-    --foreground: 0 0% 5%;             /* #0d0d0d ink */
+    --background: 42 30% 96%;
+    --foreground: 0 0% 5%;
 
     --card: 42 25% 98%;
     --card-foreground: 0 0% 5%;
@@ -16,16 +15,16 @@
     --popover: 42 30% 96%;
     --popover-foreground: 0 0% 5%;
 
-    --primary: 0 0% 18%;               /* #2d2d2d */
+    --primary: 0 0% 18%;
     --primary-foreground: 42 30% 96%;
 
-    --secondary: 39 22% 89%;           /* #e8e4dd */
+    --secondary: 39 22% 89%;
     --secondary-foreground: 0 0% 18%;
 
     --muted: 39 22% 89%;
     --muted-foreground: 0 0% 35%;
 
-    --accent: 25 45% 35%;              /* burnt sienna for highlights */
+    --accent: 25 45% 35%;
     --accent-foreground: 42 30% 96%;
 
     --destructive: 0 60% 40%;

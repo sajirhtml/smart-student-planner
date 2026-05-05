@@ -1,4 +1,3 @@
-// Pure helpers for prereq checking & credit math.
 import { getTable, CREDIT_CAP } from "@/lib/db";
 
 export function getCompletedCodes(studentId) {

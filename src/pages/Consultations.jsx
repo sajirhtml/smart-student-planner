@@ -52,7 +52,6 @@ export default function Consultations() {
     [consults, slots, sid],
   );
 
-  // Group available slots by faculty
   const byFaculty = useMemo(() => {
     const m = {};
     faculty.forEach((f) => { m[f.user_id] = []; });
@@ -108,7 +107,6 @@ export default function Consultations() {
         </p>
       </div>
 
-      {/* My bookings */}
       <div>
         <h2 className="serif text-2xl mb-3">My bookings</h2>
         {myBookings.length === 0 ? (
@@ -142,7 +140,6 @@ export default function Consultations() {
         )}
       </div>
 
-      {/* Faculty list */}
       <div>
         <h2 className="serif text-2xl mb-3">Available slots</h2>
         <div className="space-y-4">

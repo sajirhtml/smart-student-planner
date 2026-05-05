@@ -12,7 +12,6 @@ const toMin = (t) => {
   return h * 60 + m;
 };
 
-// Distinct accent colors per course (HSL, design-token friendly).
 const PALETTE = [
   "25 45% 35%", "210 50% 35%", "140 35% 32%", "280 35% 38%",
   "10 55% 40%", "190 45% 32%", "45 60% 35%", "330 40% 38%",
@@ -49,7 +48,6 @@ export default function Schedule() {
     setGenerated(true);
   };
 
-  // Each cell is one hour (60min); position items by minute offset.
   const HOUR_PX = 56;
   const dayItems = (day) => picks.filter((p) => p.day === day);
 
@@ -105,7 +103,6 @@ export default function Schedule() {
 
       {picks.length > 0 && (
         <>
-          {/* Course legend */}
           <div className="flex flex-wrap gap-2">
             {plannedCourses.map((c) => (
               <div key={c.course_code} className="flex items-center gap-2 text-sm">
@@ -119,10 +116,8 @@ export default function Schedule() {
             ))}
           </div>
 
-          {/* Weekly grid */}
           <div className="paper-card overflow-hidden">
             <div className="grid" style={{ gridTemplateColumns: "60px repeat(5, 1fr)" }}>
-              {/* Header */}
               <div className="border-b border-border bg-secondary/40" />
               {DAYS.map((d) => (
                 <div
@@ -133,7 +128,6 @@ export default function Schedule() {
                 </div>
               ))}
 
-              {/* Hour rows */}
               <div className="relative">
                 {HOURS.map((h) => (
                   <div
@@ -191,7 +185,6 @@ export default function Schedule() {
             </div>
           </div>
 
-          {/* Section list */}
           <div className="paper-card p-5">
             <h2 className="serif text-2xl mb-4">Selected sections</h2>
             <table className="w-full text-sm">

@@ -18,7 +18,6 @@ const GRADE_POINTS = {
 const GRADES = Object.keys(GRADE_POINTS);
 
 function pointToLetter(p) {
-  // closest grade not exceeding p (rounded up to nearest valid)
   const sorted = [...new Set(Object.values(GRADE_POINTS))].sort((a, b) => a - b);
   const found = sorted.find((v) => v >= p);
   const target = found ?? 4.0;
@@ -31,8 +30,7 @@ export default function CGPA() {
   const [tick, setTick] = useState(0);
   const [target, setTarget] = useState(3.75);
 
-  // current planned courses with predicted grades (in-component state, not persisted)
-  const [predicted, setPredicted] = useState({}); // { course_code: "A" }
+  const [predicted, setPredicted] = useState({});
 
   useEffect(() => {
     const h = () => setTick((t) => t + 1);
@@ -72,14 +70,12 @@ export default function CGPA() {
     completedRows, completedPoints, completedCredits, currentCgpa, plannedRows, plannedCredits,
   } = data;
 
-  // Required average GPA on planned credits to hit target
   const totalCreditsAfter = completedCredits + plannedCredits;
   const requiredPoints = target * totalCreditsAfter - completedPoints;
   const requiredAvg = plannedCredits > 0 ? requiredPoints / plannedCredits : 0;
   const feasible = plannedCredits > 0 && requiredAvg <= 4.0 + 1e-9;
   const trivial = plannedCredits > 0 && requiredAvg <= 0;
 
-  // Predicted CGPA from user's per-course predicted grades
   const predictedPoints = plannedRows.reduce((acc, r) => {
     const g = predicted[r.course_code];
     const gp = g ? GRADE_POINTS[g] : null;
@@ -108,7 +104,6 @@ export default function CGPA() {
         <Stat label="Projected CGPA" value={projectedCgpa.toFixed(2)} sub="from your predictions" />
       </section>
 
-      {/* Target */}
       <section className="paper-card p-6 space-y-4">
         <div className="flex items-end gap-4 flex-wrap">
           <div>
@@ -164,7 +159,6 @@ export default function CGPA() {
         )}
       </section>
 
-      {/* Per-course prediction */}
       <section>
         <h3 className="serif text-2xl mb-4">Predict per-course grades</h3>
         {plannedRows.length === 0 ? (
@@ -197,7 +191,6 @@ export default function CGPA() {
         )}
       </section>
 
-      {/* Completed history */}
       <section>
         <h3 className="serif text-2xl mb-4">Completed courses</h3>
         <div className="paper-card divide-y divide-border">

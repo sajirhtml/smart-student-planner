@@ -74,7 +74,6 @@ export default function CoursePlanner() {
         </p>
       </header>
 
-      {/* Selected basket */}
       <section className="paper-card p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="serif text-2xl">Your selection</h3>
@@ -118,7 +117,6 @@ export default function CoursePlanner() {
         )}
       </section>
 
-      {/* Catalog */}
       <section>
         <div className="flex items-center justify-between mb-4 gap-4">
           <h3 className="serif text-2xl">Course catalog</h3>

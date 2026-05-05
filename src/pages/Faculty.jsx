@@ -49,7 +49,6 @@ export default function Faculty() {
   const consults = useMemo(() => getTable("CONSULTATION"), [version]);
   const resources = useMemo(() => getTable("RESOURCES"), [version]);
 
-  // Derived
   const mySections = sections.filter((s) => s.faculty_id === activeId);
   const myCourseCodes = [...new Set(mySections.map((s) => s.course_code))];
   const advisees = students
@@ -66,7 +65,6 @@ export default function Faculty() {
     }));
   const myResources = resources.filter((r) => myCourseCodes.includes(r.course_code));
 
-  // ---- Resource dialog ----
   const [resOpen, setResOpen] = useState(false);
   const [resDraft, setResDraft] = useState({ course_code: "", title: "", type: "Link", url: "" });
   const submitResource = () => {
@@ -93,7 +91,6 @@ export default function Faculty() {
     updateTable("RESOURCES", (rows) => rows.filter((r) => r.resource_id !== id));
   };
 
-  // ---- Slot dialog ----
   const [slotOpen, setSlotOpen] = useState(false);
   const [slotDraft, setSlotDraft] = useState({ day: "Mon", start_time: "14:00", end_time: "14:30", room_id: "" });
   const submitSlot = () => {
@@ -153,7 +150,6 @@ export default function Faculty() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-3 sm:grid-cols-4">
         <StatCard icon={BookOpen}      label="Sections"   value={mySections.length} />
         <StatCard icon={Users}         label="Advisees"   value={advisees.length} />
@@ -169,7 +165,6 @@ export default function Faculty() {
           <TabsTrigger value="resources">Resources</TabsTrigger>
         </TabsList>
 
-        {/* SECTIONS */}
         <TabsContent value="sections" className="mt-4">
           <div className="paper-card p-5">
             {mySections.length === 0 ? (
@@ -208,7 +203,6 @@ export default function Faculty() {
           </div>
         </TabsContent>
 
-        {/* ADVISEES */}
         <TabsContent value="advisees" className="mt-4">
           <div className="paper-card p-5">
             {advisees.length === 0 ? (
@@ -237,7 +231,6 @@ export default function Faculty() {
           </div>
         </TabsContent>
 
-        {/* CONSULTATIONS */}
         <TabsContent value="consultations" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="serif text-2xl">Office-hour slots</h3>
@@ -347,7 +340,6 @@ export default function Faculty() {
           </div>
         </TabsContent>
 
-        {/* RESOURCES */}
         <TabsContent value="resources" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="serif text-2xl">Course materials</h3>

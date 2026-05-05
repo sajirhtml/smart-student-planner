@@ -1,6 +1,3 @@
-// Mock data mirroring the SCMS SQL schema (snake_case keys).
-// IDs follow your conventions: User_id is PK; students/faculty share user_id space.
-
 export const USERS = [
   { user_id: 1, name: "Aarav Hossain",   email: "aarav@uni.edu",   dept: "CSE", is_guest: 0 },
   { user_id: 2, name: "Lamia Chowdhury", email: "lamia@uni.edu",   dept: "EEE", is_guest: 0 },
@@ -32,17 +29,14 @@ export const ROOM = [
 ];
 
 export const COURSE = [
-  // CSE
   { course_code: "CSE101", title: "Intro to Programming",     description: "Foundations of programming in C.",      semester: "1", credit_hours: 3, capacity: 40 },
   { course_code: "CSE201", title: "Data Structures",          description: "Lists, trees, graphs, complexity.",     semester: "3", credit_hours: 3, capacity: 35 },
   { course_code: "CSE301", title: "Algorithms",               description: "Design and analysis of algorithms.",    semester: "4", credit_hours: 3, capacity: 35 },
   { course_code: "CSE331", title: "Database Systems",         description: "Relational model, SQL, normalization.", semester: "5", credit_hours: 3, capacity: 35 },
   { course_code: "CSE361", title: "Operating Systems",        description: "Processes, memory, file systems.",      semester: "5", credit_hours: 3, capacity: 35 },
-  // EEE
   { course_code: "EEE101", title: "Circuit Analysis I",       description: "DC and AC circuit fundamentals.",       semester: "1", credit_hours: 3, capacity: 40 },
   { course_code: "EEE201", title: "Electronics I",            description: "Diodes, transistors, amplifiers.",      semester: "3", credit_hours: 3, capacity: 35 },
   { course_code: "EEE301", title: "Signals & Systems",        description: "Continuous and discrete signals.",      semester: "4", credit_hours: 3, capacity: 35 },
-  // MAT
   { course_code: "MAT101", title: "Calculus I",               description: "Limits, derivatives, integrals.",       semester: "1", credit_hours: 3, capacity: 50 },
   { course_code: "MAT201", title: "Linear Algebra",           description: "Vectors, matrices, eigenvalues.",       semester: "2", credit_hours: 3, capacity: 50 },
   { course_code: "MAT301", title: "Probability & Statistics", description: "Probability theory and inference.",     semester: "3", credit_hours: 3, capacity: 50 },
@@ -77,33 +71,26 @@ export const SECTION = [
   { course_code: "MAT401", section_num: "A", faculty_id: 12, room_id: 5, day: "Sun", start_time: "14:00", end_time: "15:30" },
 ];
 
-// Past completed courses with grades (drives prereq + CGPA features).
-// grade_point uses 4.00 scale.
 export const ENROLLMENT = [
-  // Aarav (sem 5): finished 1-4
   { student_id: 1, course_code: "CSE101", grade: "A",  grade_point: 4.0, status: "completed" },
   { student_id: 1, course_code: "MAT101", grade: "A-", grade_point: 3.7, status: "completed" },
   { student_id: 1, course_code: "MAT201", grade: "B+", grade_point: 3.3, status: "completed" },
   { student_id: 1, course_code: "MAT401", grade: "A",  grade_point: 4.0, status: "completed" },
   { student_id: 1, course_code: "CSE201", grade: "B+", grade_point: 3.3, status: "completed" },
   { student_id: 1, course_code: "CSE301", grade: "A-", grade_point: 3.7, status: "completed" },
-  // Lamia (sem 4)
   { student_id: 2, course_code: "EEE101", grade: "B+", grade_point: 3.3, status: "completed" },
   { student_id: 2, course_code: "MAT101", grade: "A-", grade_point: 3.7, status: "completed" },
   { student_id: 2, course_code: "MAT201", grade: "B",  grade_point: 3.0, status: "completed" },
-  // Nabil (sem 6)
   { student_id: 3, course_code: "MAT101", grade: "A",  grade_point: 4.0, status: "completed" },
   { student_id: 3, course_code: "MAT201", grade: "A",  grade_point: 4.0, status: "completed" },
   { student_id: 3, course_code: "MAT301", grade: "A",  grade_point: 4.0, status: "completed" },
   { student_id: 3, course_code: "MAT401", grade: "A-", grade_point: 3.7, status: "completed" },
 ];
 
-// Per-student selections for the upcoming semester (the planner writes here).
-export const PLANNED_ENROLLMENT = []; // { student_id, course_code, section_num }
+export const PLANNED_ENROLLMENT = [];
 
 export const TASK = [];
 export const ACADEMIC_RECORDS = [];
-// Faculty office hours: recurring weekly slots students can book.
 export const FACULTY_SLOT = [
   { slot_id: 1, faculty_id: 10, day: "Mon", start_time: "14:00", end_time: "14:30", room_id: 2 },
   { slot_id: 2, faculty_id: 10, day: "Mon", start_time: "14:30", end_time: "15:00", room_id: 2 },
@@ -115,7 +102,7 @@ export const FACULTY_SLOT = [
   { slot_id: 8, faculty_id: 12, day: "Wed", start_time: "15:30", end_time: "16:00", room_id: 6 },
 ];
 
-export const CONSULTATION = []; // { c_id, slot_id, student_id, topic, status, booked_at }
+export const CONSULTATION = [];
 export const RESOURCES = [
   { resource_id: 1, course_code: "CSE101", title: "C Programming Cheatsheet", type: "Note",     url: "https://en.cppreference.com/w/c/language", uploaded_by: 10, uploaded_at: "2026-01-12" },
   { resource_id: 2, course_code: "CSE101", title: "Lecture 1 — Hello World",  type: "Slides",   url: "https://example.com/cse101-l1.pdf",         uploaded_by: 10, uploaded_at: "2026-01-15" },
