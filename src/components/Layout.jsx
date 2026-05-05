@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import { resetAll } from "@/lib/db";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import {
   LayoutDashboard, BookOpen, CalendarClock, Calculator, KanbanSquare,
-  DoorOpen, Library, CalendarCheck, GraduationCap, RotateCcw,
+  DoorOpen, Library, CalendarCheck, GraduationCap, RotateCcw, Plus,
 } from "lucide-react";
 
 const NAV = [
@@ -20,10 +20,12 @@ const NAV = [
   { to: "/resources",     label: "Resources",      icon: Library },
   { to: "/consultations", label: "Consultations",  icon: CalendarCheck },
   { to: "/faculty",       label: "Faculty Portal", icon: GraduationCap },
+  { to: "/students/new",  label: "Create Student", icon: Plus },
 ];
 
 export default function Layout() {
   const { students, activeStudent, switchUser } = useUser();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -86,6 +88,9 @@ export default function Layout() {
                 ))}
               </SelectContent>
             </Select>
+            <Button variant="default" size="sm" className="ml-2 hidden sm:inline-flex" onClick={() => navigate(`/students/${activeStudent?.user_id}/edit`)}>
+              Edit
+            </Button>
           </div>
         </header>
         <main className="flex-1 p-6 md:p-10 max-w-6xl w-full mx-auto">

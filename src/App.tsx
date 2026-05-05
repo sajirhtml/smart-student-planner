@@ -16,6 +16,9 @@ import Consultations from "@/pages/Consultations.jsx";
 import Faculty from "@/pages/Faculty.jsx";
 import Placeholder from "@/pages/Placeholder.jsx";
 import NotFound from "./pages/NotFound.tsx";
+import CreateStudent from "@/pages/CreateStudent.jsx";
+import CreateStudentCourses from "@/pages/CreateStudentCourses.jsx";
+import EditStudent from "@/pages/EditStudent.jsx";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,10 @@ const App = () => (
               <Route path="/resources"     element={<Resources />} />
               <Route path="/consultations" element={<Consultations />} />
               <Route path="/faculty"       element={<Faculty />} />
+              <Route path="/students/new" element={<CreateStudent />} />
+              <Route path="/students/new/courses" element={<CreateStudentCourses />} />
+              <Route path="/students/:userId/edit" element={<EditStudent />} />
+              <Route path="/students/:userId/courses" element={<CreateStudentCourses />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

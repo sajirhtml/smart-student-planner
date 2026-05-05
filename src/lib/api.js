@@ -125,6 +125,18 @@ export async function apiAddPlannedEnrollment(row) {
   return postJSON("planned_enrollments.php", row);
 }
 
+export async function apiAddEnrollment(row) {
+  return postJSON("enrollments.php", row);
+}
+
+export async function apiUpdateUser(user) {
+  return putJSON("users.php", user);
+}
+
+export async function apiUpdateStudent(student) {
+  return putJSON("students.php", student);
+}
+
 export async function apiDeletePlannedEnrollment(student_id, course_code) {
   return deleteJSON("planned_enrollments.php", { student_id, course_code });
 }

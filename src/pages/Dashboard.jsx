@@ -39,6 +39,9 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-2">
           {activeStudent.dept} · Semester {activeStudent.semester} · CGPA {activeStudent.cgpa?.toFixed(2)}
         </p>
+        <div className="mt-4">
+          <Link to="/students/new" className="btn btn-sm">Create student</Link>
+        </div>
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
